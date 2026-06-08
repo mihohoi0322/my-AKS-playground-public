@@ -8,7 +8,9 @@ metadata:
     app.kubernetes.io/component: backend
     app.kubernetes.io/part-of: hrsystem
 spec:
-  replicas: 2
+  # InMemory repository (Cosmos unset) のため Pod ローカル state。
+  # 本番 (Cosmos 接続) に切り替えたら 2 以上に増やす。
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: attendance-service

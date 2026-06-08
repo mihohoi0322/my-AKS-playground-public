@@ -8,7 +8,10 @@ metadata:
     app.kubernetes.io/component: backend
     app.kubernetes.io/part-of: hrsystem
 spec:
-  replicas: 2
+  # NOTE: InMemory repository (Cosmos unset) は Pod ローカル state のため
+  # replicas >= 2 にすると POST と GET で Pod が分かれて NotFound になる。
+  # 本番 (Cosmos 接続) に切り替えたら 2 以上に増やして OK。
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: employee-service
