@@ -7,9 +7,13 @@ metadata:
     app.kubernetes.io/part-of: hrsystem
 data:
   # Common gRPC service endpoints (resolved via Kubernetes DNS)
-  EMPLOYEE_SERVICE_URL: "employee-service:50051"
-  ATTENDANCE_SERVICE_URL: "attendance-service:50052"
-  ORGANIZATION_SERVICE_URL: "organization-service:50053"
+  # NOTE: scheme is required — .NET's GrpcChannel.ForAddress / new Uri() rejects
+  # bare host:port (treats "employee-service" as a URI scheme and fails with
+  # "No address resolver configured for the scheme 'employee-service'").
+  # api-gateway (Node) strips the scheme internally, so http:// works for both.
+  EMPLOYEE_SERVICE_URL: "http://employee-service:50051"
+  ATTENDANCE_SERVICE_URL: "http://attendance-service:50052"
+  ORGANIZATION_SERVICE_URL: "http://organization-service:50053"
 
   # Redis (cluster-internal). Disabled by default to mirror docker-compose.
   REDIS_HOST: "redis"
