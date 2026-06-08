@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package hrsystem.organization.v1;
+
+option csharp_namespace = "HRSystem.Protos.Organization.V1";
+
+import "google/protobuf/empty.proto";
+
+service OrganizationService {
+  rpc CreateOrganization(CreateOrganizationRequest) returns (Organization);
+  rpc GetOrganization(GetOrganizationRequest) returns (Organization);
+  rpc UpdateOrganization(UpdateOrganizationRequest) returns (Organization);
+  rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.protobuf.Empty);
+  rpc ListChildren(ListChildrenRequest) returns (ListChildrenResponse);
+  rpc GetOrganizationTree(GetOrganizationTreeRequest) returns (OrganizationTreeNode);
+}
+
+message Organization {
+  string org_id = 1;
+  string name = 2;
+  string parent_org_id = 3;
+  int32 level = 4;
+  string manager_id = 5;
+  string description = 6;
+}
+
+message CreateOrganizationRequest {
+  string name = 1;
+  string parent_org_id = 2;
+  string manager_id = 3;
+  string description = 4;
+}
+
+message GetOrganizationRequest {
+  string org_id = 1;
+}
+
+message UpdateOrganizationRequest {
+  string org_id = 1;
+  optional string name = 2;
+  optional string parent_org_id = 3;
+  optional string manager_id = 4;
+  optional string description = 5;
+}
+
+message DeleteOrganizationRequest {
+  string org_id = 1;
+}
+
+message ListChildrenRequest {
+  string org_id = 1;
+  int32 limit = 2;
+  string cursor = 3;
+}
+
+message ListChildrenResponse {
+  repeated Organization organizations = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+message GetOrganizationTreeRequest {
+  string org_id = 1;
+}
+
+message OrganizationTreeNode {
+  string org_id = 1;
+  string name = 2;
+  int32 level = 3;
+  string manager_id = 4;
+  repeated OrganizationTreeNode children = 5;
+}

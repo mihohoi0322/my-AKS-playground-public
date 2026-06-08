@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package hrsystem.attendance.v1;
+
+option csharp_namespace = "HRSystem.Protos.Attendance.V1";
+
+service AttendanceService {
+  rpc ClockIn(ClockInRequest) returns (Attendance);
+  rpc ClockOut(ClockOutRequest) returns (Attendance);
+  rpc GetAttendance(GetAttendanceRequest) returns (Attendance);
+  rpc ListAttendanceByPeriod(ListAttendanceByPeriodRequest) returns (ListAttendanceByPeriodResponse);
+}
+
+message Attendance {
+  string attendance_id = 1;
+  string employee_id = 2;
+  string date = 3;
+  string clock_in = 4;
+  string clock_out = 5;
+  double work_hours = 6;
+  string type = 7;
+}
+
+message ClockInRequest {
+  string employee_id = 1;
+  string type = 2;
+}
+
+message ClockOutRequest {
+  string employee_id = 1;
+}
+
+message GetAttendanceRequest {
+  string attendance_id = 1;
+}
+
+message ListAttendanceByPeriodRequest {
+  string employee_id = 1;
+  string start_date = 2;
+  string end_date = 3;
+  int32 limit = 4;
+  string cursor = 5;
+}
+
+message ListAttendanceByPeriodResponse {
+  repeated Attendance records = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}

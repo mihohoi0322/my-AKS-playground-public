@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.*" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <!--
+      Direct Roslyn dependency for AuditAttributeRequiredAnalyzer tests. Version 4.11.0 matches
+      HRSystem.Audit.Analyzers so the analyzer can be hosted in CSharpCompilation. We do not use
+      Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.XUnit because its current stable (1.1.2) only
+      ships .NETFramework binaries and triggers NU1701 / brings in Roslyn 1.0.1 transitively.
+    -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\HRSystem.Shared\HRSystem.Shared.csproj" />
+    <ProjectReference Include="..\..\Shared\HRSystem.Audit.Analyzers\HRSystem.Audit.Analyzers.csproj" />
+  </ItemGroup>
+
+</Project>

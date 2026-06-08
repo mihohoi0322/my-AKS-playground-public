@@ -1,0 +1,22 @@
+version: v2
+managed:
+  enabled: true
+  override:
+    - file_option: csharp_namespace
+      module: buf.build/hrsystem/protos
+      path: hrsystem/employee/v1
+      value: HRSystem.Protos.Employee.V1
+    - file_option: csharp_namespace
+      module: buf.build/hrsystem/protos
+      path: hrsystem/attendance/v1
+      value: HRSystem.Protos.Attendance.V1
+    - file_option: csharp_namespace
+      module: buf.build/hrsystem/protos
+      path: hrsystem/organization/v1
+      value: HRSystem.Protos.Organization.V1
+plugins:
+  - remote: buf.build/community/stephenh-ts-proto
+    out: gen/ts
+    opt:
+      - esModuleInterop=true
+      - outputServices=grpc-js

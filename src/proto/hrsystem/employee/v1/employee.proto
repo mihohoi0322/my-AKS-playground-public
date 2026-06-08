@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package hrsystem.employee.v1;
+
+option csharp_namespace = "HRSystem.Protos.Employee.V1";
+
+import "google/protobuf/timestamp.proto";
+
+service EmployeeService {
+  rpc CreateEmployee(CreateEmployeeRequest) returns (Employee);
+  rpc GetEmployee(GetEmployeeRequest) returns (Employee);
+  rpc UpdateEmployee(UpdateEmployeeRequest) returns (Employee);
+  rpc DeleteEmployee(DeleteEmployeeRequest) returns (Employee);
+  rpc ListEmployees(ListEmployeesRequest) returns (ListEmployeesResponse);
+  rpc HasEmployeesByDepartment(HasEmployeesByDepartmentRequest) returns (HasEmployeesByDepartmentResponse);
+}
+
+message Employee {
+  string employee_id = 1;
+  string name = 2;
+  string email = 3;
+  string department_id = 4;
+  string position = 5;
+  string hire_date = 6;
+  string status = 7;
+}
+
+message CreateEmployeeRequest {
+  string name = 1;
+  string email = 2;
+  string department_id = 3;
+  string position = 4;
+  string hire_date = 5;
+}
+
+message GetEmployeeRequest {
+  string employee_id = 1;
+}
+
+message UpdateEmployeeRequest {
+  string employee_id = 1;
+  optional string name = 2;
+  optional string email = 3;
+  optional string department_id = 4;
+  optional string position = 5;
+  optional string status = 6;
+}
+
+message DeleteEmployeeRequest {
+  string employee_id = 1;
+}
+
+message ListEmployeesRequest {
+  int32 limit = 1;
+  string cursor = 2;
+  optional string status = 3;
+  optional string department_id = 4;
+}
+
+message ListEmployeesResponse {
+  repeated Employee employees = 1;
+  string next_cursor = 2;
+  bool has_more = 3;
+}
+
+message HasEmployeesByDepartmentRequest {
+  string department_id = 1;
+}
+
+message HasEmployeesByDepartmentResponse {
+  bool has_employees = 1;
+}

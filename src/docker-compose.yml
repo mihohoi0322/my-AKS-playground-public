@@ -1,0 +1,179 @@
+name: hrsystem
+
+# Local orchestration for the HR System monorepo.
+# Build context is the `src/` directory (this folder), so every service's
+# Dockerfile resolves paths like `packages/...` and `services/...` correctly.
+#
+# Usage:
+#   docker compose up --build
+#   docker compose up -d --build
+#   docker compose down -v
+#
+# URLs (host):
+#   - web-ui:       http://localhost:3000
+#   - api-gateway:  http://localhost:8000  (health: /health)
+#   - employee:     grpc://localhost:50051
+#   - attendance:   grpc://localhost:50052
+#   - organization: grpc://localhost:50053
+#   - redis:        localhost:6379
+
+services:
+  # --------------------------------------------------------------------------
+  # Infrastructure
+  # --------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: hrsystem-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - hrsystem
+
+  # --------------------------------------------------------------------------
+  # C# gRPC backend services (.NET 10)
+  # In-memory repositories are used because Cosmos:ConnectionString is empty.
+  # --------------------------------------------------------------------------
+  employee-service:
+    build:
+      context: .
+      dockerfile: services/EmployeeService/Dockerfile
+    container_name: hrsystem-employee-service
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:50051
+      GRPC_PORT: "50051"
+      Redis__Host: redis
+      Redis__Port: "6379"
+      Redis__Enabled: "false"
+      Cosmos__ConnectionString: ""
+    ports:
+      - "50051:50051"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - hrsystem
+
+  attendance-service:
+    build:
+      context: .
+      dockerfile: services/AttendanceService/Dockerfile
+    container_name: hrsystem-attendance-service
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:50052
+      GRPC_PORT: "50052"
+      EMPLOYEE_SERVICE_URL: http://employee-service:50051
+      Redis__Host: redis
+      Redis__Port: "6379"
+      Redis__Enabled: "false"
+      Cosmos__ConnectionString: ""
+    ports:
+      - "50052:50052"
+    depends_on:
+      redis:
+        condition: service_healthy
+      employee-service:
+        condition: service_started
+    networks:
+      - hrsystem
+
+  organization-service:
+    build:
+      context: .
+      dockerfile: services/OrganizationService/Dockerfile
+    container_name: hrsystem-organization-service
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:50053
+      GRPC_PORT: "50053"
+      EMPLOYEE_SERVICE_URL: http://employee-service:50051
+      Redis__Host: redis
+      Redis__Port: "6379"
+      Redis__Enabled: "false"
+      Cosmos__ConnectionString: ""
+    ports:
+      - "50053:50053"
+    depends_on:
+      redis:
+        condition: service_healthy
+      employee-service:
+        condition: service_started
+    networks:
+      - hrsystem
+
+  # --------------------------------------------------------------------------
+  # Node.js API Gateway (Fastify, REST -> gRPC)
+  # --------------------------------------------------------------------------
+  api-gateway:
+    build:
+      context: .
+      dockerfile: packages/api-gateway/Dockerfile
+    container_name: hrsystem-api-gateway
+    restart: unless-stopped
+    environment:
+      APP_PORT: "8000"
+      LOG_LEVEL: info
+      TELEMETRY_ENABLED: "false"
+      REDIS_ENABLED: "false"
+      REDIS_SSL: "false"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      EMPLOYEE_SERVICE_URL: employee-service:50051
+      ATTENDANCE_SERVICE_URL: attendance-service:50052
+      ORGANIZATION_SERVICE_URL: organization-service:50053
+      ALLOWED_ORIGINS: http://localhost:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      employee-service:
+        condition: service_started
+      attendance-service:
+        condition: service_started
+      organization-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - hrsystem
+
+  # --------------------------------------------------------------------------
+  # Next.js Web UI
+  # NEXT_PUBLIC_API_URL falls back to http://localhost:8000 inside src/lib/api.ts,
+  # which matches the host-published api-gateway port; no build arg needed.
+  # --------------------------------------------------------------------------
+  web-ui:
+    build:
+      context: .
+      dockerfile: packages/web-ui/Dockerfile
+    container_name: hrsystem-web-ui
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+    ports:
+      - "3000:3000"
+    depends_on:
+      api-gateway:
+        condition: service_started
+    networks:
+      - hrsystem
+
+networks:
+  hrsystem:
+    driver: bridge

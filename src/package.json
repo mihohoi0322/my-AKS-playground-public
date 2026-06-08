@@ -1,0 +1,26 @@
+{
+  "name": "aks-hrsystem-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AKS HR System Lab — monorepo workspace root",
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "qa": "npm run qa --workspace=@hrsystem/api-gateway",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "npm run clean --workspaces --if-present"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  }
+}

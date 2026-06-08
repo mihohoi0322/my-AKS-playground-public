@@ -1,0 +1,24 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.2.3">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>51f49cde-a432-436d-b5e3-33074cced52c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Azure.CosmosDB" Version="13.2.3" />
+    <PackageReference Include="Aspire.Hosting.JavaScript" Version="13.2.3" />
+    <PackageReference Include="Aspire.Hosting.Redis" Version="13.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\EmployeeService\EmployeeService.csproj" />
+    <ProjectReference Include="..\..\AttendanceService\AttendanceService.csproj" />
+    <ProjectReference Include="..\..\OrganizationService\OrganizationService.csproj" />
+    <ProjectReference Include="..\..\ServiceDefaults\HRSystem.ServiceDefaults\HRSystem.ServiceDefaults.csproj" IsAspireProjectResource="false" />
+  </ItemGroup>
+
+</Project>

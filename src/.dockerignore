@@ -1,0 +1,10 @@
+node_modules
+dist
+coverage
+.cache
+*.tgz
+npm-debug.log*
+.env
+.env.*
+htmlcov
+__pycache__

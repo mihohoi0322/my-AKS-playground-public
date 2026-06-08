@@ -1,0 +1,140 @@
+# ===== OS =====
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ===== Editors / IDE =====
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== Logs =====
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===== Environment files =====
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# ===== Node.js / TypeScript =====
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+dist/
+build/
+out/
+coverage/
+*.tsbuildinfo
+.eslintcache
+.cache/
+.parcel-cache/
+.turbo/
+
+# ===== Next.js =====
+.next/
+next-env.d.ts
+.vercel
+
+# ===== Vite / Vitest =====
+.vite/
+
+# ===== .NET =====
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/launchSettings.json
+
+# ===== .NET test / coverage =====
+TestResults/
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# ===== .NET publish =====
+publish/
+*.pubxml.user
+PublishProfiles/
+*.azurePubxml
+
+# ===== .NET Aspire =====
+.aspire/
+
+# ===== Rider / Visual Studio =====
+.vs/
+*.rsuser
+
+# ===== Protobuf generated =====
+src/proto/gen/
+**/generated/
+**/*.pb.go
+**/*_pb.ts
+**/*_pb.js
+**/*_pb.d.ts
+**/*_connect.ts
+**/*_connect.js
+**/*_connect.d.ts
+
+# ===== Docker =====
+*.pid
+
+# ===== Kubernetes / Helm =====
+charts/*.tgz
+**/secrets.yaml
+**/*.secret.yaml
+kubeconfig
+*.kubeconfig
+
+# ===== Terraform / Bicep (if added later) =====
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
+*.bicepparam.local
+
+# ===== Azure / azd =====
+.azure/
+
+# ===== Secrets / Certificates =====
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+secrets/
+
+# ===== Misc =====
+tmp/
+temp/
+*.bak
+*.tmp

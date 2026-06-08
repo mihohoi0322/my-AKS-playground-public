@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+/* ============================================================
+ * Nordic / Scandinavian design tokens
+ * ============================================================
+ * Token names are kept stable (roll-forward) to avoid breaking
+ * existing components. New tokens added for Nordic redesign.
+ */
+:root {
+  /* Surface / text */
+  --background: #f5f0eb;
+  --foreground: #2d3436;
+  --card: #ffffff;
+  --card-hover: #faf8f5;
+  --surface: #ede8e1;
+  --border: #ddd5cb;
+  --muted: #8d8578;
+
+  /* Brand */
+  --primary: #6b8f71;
+  --primary-hover: #557258;
+  --primary-light: #e8f0e9;
+  --accent: #c8a882;
+  --accent-light: #f2ece4;
+
+  /* Status colors (no compromise on anomalies — 山本要望) */
+  --danger: #c0392b;
+  --danger-light: #f8e3df;
+  --success: #6b8f71;
+  --success-light: #e8f0e9;
+  --color-info: #6b8faf;
+  --color-warning: #c99a52;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 9999px;
+
+  /* Shadow (Nordic — restrained) */
+  --shadow-sm: 0 1px 2px 0 rgba(45, 52, 54, 0.04), 0 1px 1px 0 rgba(45, 52, 54, 0.02);
+  --shadow-md: 0 4px 8px -2px rgba(45, 52, 54, 0.06), 0 2px 4px -2px rgba(45, 52, 54, 0.04);
+  --shadow-lg: 0 12px 24px -8px rgba(45, 52, 54, 0.10), 0 4px 8px -4px rgba(45, 52, 54, 0.05);
+
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-slow: 240ms;
+  --motion-ease-out: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Density (Table row height switch — 佐藤要望) */
+  --row-height-comfortable: 56px;
+  --row-height-compact: 40px;
+}
+
+/* Dark theme (opt-in via [data-theme="dark"]) */
+[data-theme="dark"] {
+  --background: #1d2226;
+  --foreground: #ece7df;
+  --card: #262b30;
+  --card-hover: #2c3237;
+  --surface: #22272b;
+  --border: #3a3f44;
+  --muted: #9c958a;
+
+  --primary: #8aab90;
+  --primary-hover: #9cbba2;
+  --primary-light: #2e3a31;
+  --accent: #d6b78d;
+  --accent-light: #3a3328;
+
+  --danger: #e26054;
+  --danger-light: #3a2723;
+  --success: #8aab90;
+  --success-light: #2e3a31;
+  --color-info: #8fa9c4;
+  --color-warning: #d6b274;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.30), 0 1px 1px 0 rgba(0, 0, 0, 0.20);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.40), 0 2px 4px -2px rgba(0, 0, 0, 0.30);
+  --shadow-lg: 0 12px 24px -8px rgba(0, 0, 0, 0.50), 0 4px 8px -4px rgba(0, 0, 0, 0.35);
+}
+
+/* Tailwind v4 token bridge */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-info: var(--color-info);
+  --color-warning: var(--color-warning);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-pill: var(--radius-pill);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.01em;
+  line-height: 1.7;
+}
+
+/* Honour user motion preferences (a11y) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
