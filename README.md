@@ -31,6 +31,7 @@ HR (人事) 業務を題材にした疎結合マイクロサービスのデモ�
 ### 動作モード
 
 - **データストア**: `Cosmos:ConnectionString` が空のときは InMemory リポジトリで動作します (検証用)。本番では Azure Cosmos DB を接続。
+  - InMemory モードは Pod ローカルなので、バックエンド 3 サービスは `replicas: 1` 固定。Cosmos に切り替えたら 2 以上にスケール可能。
 - **Redis**: `REDIS_ENABLED=true` で api-gateway がキャッシュを使用。デフォルト `false`。
 
 ### コンテナイメージ
@@ -75,9 +76,9 @@ flowchart LR
                 end
 
                 subgraph backend["Backend tier (gRPC, ClusterIP)"]
-                    EMP["employee-service<br/>:50051"]
-                    ATT["attendance-service<br/>:50052"]
-                    ORG["organization-service<br/>:50053"]
+                    EMP["employee-service<br/>Deployment x1 :50051"]
+                    ATT["attendance-service<br/>Deployment x1 :50052"]
+                    ORG["organization-service<br/>Deployment x1 :50053"]
                 end
 
                 CM[/"ConfigMap<br/>hrsystem-config"/]
