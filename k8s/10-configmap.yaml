@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hrsystem-config
+  namespace: hrsystem
+  labels:
+    app.kubernetes.io/part-of: hrsystem
+data:
+  # Common gRPC service endpoints (resolved via Kubernetes DNS)
+  EMPLOYEE_SERVICE_URL: "employee-service:50051"
+  ATTENDANCE_SERVICE_URL: "attendance-service:50052"
+  ORGANIZATION_SERVICE_URL: "organization-service:50053"
+
+  # Redis (cluster-internal). Disabled by default to mirror docker-compose.
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  REDIS_SSL: "false"
+  REDIS_ENABLED: "false"
+
+  # .NET style (double-underscore = config section delimiter)
+  Redis__Host: "redis"
+  Redis__Port: "6379"
+  Redis__Enabled: "false"
+  Cosmos__ConnectionString: ""
+
+  # API gateway
+  APP_PORT: "8000"
+  LOG_LEVEL: "info"
+  TELEMETRY_ENABLED: "false"
+  ALLOWED_ORIGINS: "*"

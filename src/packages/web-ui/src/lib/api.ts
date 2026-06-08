@@ -1,4 +1,6 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+// Default to empty so paths are same-origin ("/api/...") and Next.js rewrites
+// (see next.config.ts) proxy them to the api-gateway service inside the cluster.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export async function apiFetch<T>(
   path: string,

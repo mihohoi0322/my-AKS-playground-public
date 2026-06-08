@@ -1,0 +1,110 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: organization-service
+  namespace: hrsystem
+  labels:
+    app.kubernetes.io/name: organization-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: hrsystem
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: organization-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: organization-service
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/part-of: hrsystem
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1654
+        runAsGroup: 1654
+        fsGroup: 1654
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: organization-service
+          image: ghcr.io/mihohoi0322/hrsystem-organization-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: grpc
+              containerPort: 50053
+              protocol: TCP
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+            - name: ASPNETCORE_URLS
+              value: "http://+:50053"
+            - name: GRPC_PORT
+              value: "50053"
+            - name: DOTNET_RUNNING_IN_CONTAINER
+              value: "true"
+          envFrom:
+            - configMapRef:
+                name: hrsystem-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "192Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          startupProbe:
+            grpc:
+              port: 50053
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            grpc:
+              port: 50053
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            grpc:
+              port: 50053
+            periodSeconds: 15
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: organization-service
+  namespace: hrsystem
+  labels:
+    app.kubernetes.io/name: organization-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: hrsystem
+  annotations:
+    service.alpha.kubernetes.io/app-protocols: '{"grpc":"HTTP2"}'
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: organization-service
+  ports:
+    - name: grpc
+      port: 50053
+      targetPort: grpc
+      appProtocol: grpc
+      protocol: TCP
