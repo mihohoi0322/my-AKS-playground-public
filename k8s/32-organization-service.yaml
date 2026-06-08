@@ -35,7 +35,7 @@ spec:
       containers:
         - name: organization-service
           image: ghcr.io/mihohoi0322/hrsystem-organization-service:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - name: grpc
               containerPort: 50053

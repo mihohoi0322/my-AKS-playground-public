@@ -35,7 +35,7 @@ spec:
       containers:
         - name: attendance-service
           image: ghcr.io/mihohoi0322/hrsystem-attendance-service:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - name: grpc
               containerPort: 50052

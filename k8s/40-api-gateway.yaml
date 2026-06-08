@@ -35,7 +35,7 @@ spec:
       containers:
         - name: api-gateway
           image: ghcr.io/mihohoi0322/hrsystem-api-gateway:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 8000
