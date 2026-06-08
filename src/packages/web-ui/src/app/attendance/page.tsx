@@ -23,57 +23,142 @@ interface AttendanceWithName extends AttendanceRecord {
 }
 
 export default function AttendancePage() {
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
   const [records, setRecords] = useState<AttendanceWithName[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const loadAll = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const empData = await apiFetch<{ employees: Employee[] }>("/api/employees");
+      const emps = empData.employees ?? [];
+      setEmployees(emps);
+      if (emps.length > 0) {
+        setSelectedEmployeeId((prev) => prev || emps[0].employeeId);
+      }
+      const today = new Date().toISOString().split("T")[0];
+      const allRecords: AttendanceWithName[] = [];
+      for (const emp of emps) {
+        try {
+          const attData = await apiFetch<{ records: AttendanceRecord[] }>(
+            `/api/attendance?employeeId=${emp.employeeId}&startDate=${today}&endDate=${today}`,
+          );
+          for (const rec of attData.records ?? []) {
+            allRecords.push({ ...rec, employeeName: emp.name });
+          }
+        } catch {
+          // Skip employees without attendance data
+        }
+      }
+      setRecords(allRecords);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function load() {
-      try {
-        // Get all employees, then fetch attendance for each
-        const empData = await apiFetch<{ employees: Employee[] }>("/api/employees");
-        const employees = empData.employees ?? [];
-        const today = new Date().toISOString().split("T")[0];
-        const startDate = today;
-        const endDate = today;
-
-        const allRecords: AttendanceWithName[] = [];
-        for (const emp of employees) {
-          try {
-            const attData = await apiFetch<{ records: AttendanceRecord[] }>(
-              `/api/attendance?employeeId=${emp.employeeId}&startDate=${startDate}&endDate=${endDate}`
-            );
-            for (const rec of attData.records ?? []) {
-              allRecords.push({ ...rec, employeeName: emp.name });
-            }
-          } catch {
-            // Skip employees without attendance data
-          }
-        }
-        setRecords(allRecords);
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+    void loadAll();
   }, []);
+
+  const handleClockIn = async () => {
+    if (!selectedEmployeeId) {
+      setError("従業員を選択してください");
+      return;
+    }
+    setError(null);
+    setInfo(null);
+    setSubmitting(true);
+    try {
+      await apiFetch("/api/attendance/clock-in", {
+        method: "POST",
+        body: JSON.stringify({ employeeId: selectedEmployeeId, type: "office" }),
+      });
+      const emp = employees.find((e) => e.employeeId === selectedEmployeeId);
+      setInfo(`${emp?.name ?? selectedEmployeeId} の出勤を記録しました`);
+      await loadAll();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "出勤の記録に失敗しました");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleClockOut = async () => {
+    if (!selectedEmployeeId) {
+      setError("従業員を選択してください");
+      return;
+    }
+    setError(null);
+    setInfo(null);
+    setSubmitting(true);
+    try {
+      await apiFetch("/api/attendance/clock-out", {
+        method: "POST",
+        body: JSON.stringify({ employeeId: selectedEmployeeId }),
+      });
+      const emp = employees.find((e) => e.employeeId === selectedEmployeeId);
+      setInfo(`${emp?.name ?? selectedEmployeeId} の退勤を記録しました`);
+      await loadAll();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "退勤の記録に失敗しました");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-2 gap-4 flex-wrap">
         <h2 className="text-xl font-semibold tracking-wide">勤怠管理</h2>
-        <div className="flex gap-2">
-          <button className="bg-[var(--primary)] text-white px-4 py-2 rounded-xl text-sm hover:bg-[var(--primary-hover)] transition-colors">
+        <div className="flex gap-2 items-center flex-wrap">
+          <select
+            aria-label="打刻対象の従業員"
+            value={selectedEmployeeId}
+            onChange={(e) => setSelectedEmployeeId(e.target.value)}
+            disabled={employees.length === 0 || submitting}
+            className="px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--primary)]"
+          >
+            {employees.length === 0 ? (
+              <option value="">従業員がいません</option>
+            ) : (
+              employees.map((emp) => (
+                <option key={emp.employeeId} value={emp.employeeId}>
+                  {emp.name}
+                </option>
+              ))
+            )}
+          </select>
+          <button
+            onClick={handleClockIn}
+            disabled={submitting || !selectedEmployeeId}
+            className="bg-[var(--primary)] text-white px-4 py-2 rounded-xl text-sm hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-60"
+          >
             出勤
           </button>
-          <button className="bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] px-4 py-2 rounded-xl text-sm hover:bg-[var(--surface)] transition-colors">
+          <button
+            onClick={handleClockOut}
+            disabled={submitting || !selectedEmployeeId}
+            className="bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] px-4 py-2 rounded-xl text-sm hover:bg-[var(--surface)] transition-colors disabled:opacity-60"
+          >
             退勤
           </button>
         </div>
       </div>
       <p className="text-sm text-[var(--muted)] mb-6">本日の出退勤状況</p>
+
+      {info && (
+        <div className="bg-[var(--success-light)] border border-[var(--success)] text-[var(--success)] rounded-2xl p-4 mb-4 text-sm">
+          {info}
+          <button onClick={() => setInfo(null)} className="ml-2 underline">閉じる</button>
+        </div>
+      )}
 
       {loading && (
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-12 text-center">
@@ -83,6 +168,7 @@ export default function AttendancePage() {
       {error && (
         <div className="bg-[var(--danger-light)] border border-[var(--danger)] text-[var(--danger)] rounded-2xl p-4 mb-4 text-sm">
           {error}
+          <button onClick={() => setError(null)} className="ml-2 underline">閉じる</button>
         </div>
       )}
 

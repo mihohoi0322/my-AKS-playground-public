@@ -55,6 +55,16 @@ export default function EmployeesPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Auto-open create modal when navigated with ?new=1 (e.g. from dashboard).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("new") === "1") {
+      setForm(emptyForm);
+      setModal({ mode: "create" });
+    }
+  }, []);
+
   const closeModal = () => {
     setModal(null);
     // Restore focus to the trigger button after the modal unmounts.
