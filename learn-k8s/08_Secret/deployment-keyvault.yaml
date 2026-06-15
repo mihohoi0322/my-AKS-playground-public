@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: workload-identity-sa
+  namespace: default
+  annotations:
+    azure.workload.identity/client-id: "<USER_ASSIGNED_CLIENT_ID>"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sc-demo-keyvault-csi
+  labels:
+    azure.workload.identity/use: "true"
+  namespace: default
+spec:
+  serviceAccountName: workload-identity-sa
+  containers:
+    - name: busybox
+      image: busybox:1.36
+      command:
+        - "/bin/sleep"
+        - "10000"
+      volumeMounts:
+      - name: secrets-store01-inline
+        mountPath: "/mnt/secrets-store"
+        readOnly: true
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi
+  volumes:
+    - name: secrets-store01-inline
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: "sc-demo-keyvault-csi"
