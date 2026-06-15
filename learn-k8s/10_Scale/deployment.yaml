@@ -2,9 +2,7 @@
 # - autoscaling/v2 を使用し CPU とメモリ両方の平均利用率でスケール
 # - リソース requests が設定されていないと平均利用率(%)計算ができないので注意
 #
-# 負荷生成例:
-#   kubectl run load --image=busybox:1.36 -- /bin/sh -c "while true; do wget -q -O- http://<SERVICE_IP>/ > /dev/null; done"
-# または kubectl exec で apachebench/hey などを利用
+# 負荷生成と確認手順は README.md を参照してください。
 
 ---
 apiVersion: apps/v1

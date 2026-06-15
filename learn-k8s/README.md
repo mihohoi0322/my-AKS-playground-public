@@ -70,6 +70,8 @@ kubectl config set-context --current --namespace=hol
 ```
 > 現在のマニフェストは `metadata.namespace` を指定していないため default namespace に作成されます。ハンズオンの切り離し・クリーンアップを容易にするため namespace 化を推奨。
 
+> Key Vault CSI + Workload Identity を使う場合は、Federated Credential の subject に namespace が含まれます。`08_Secret` の手順では、現在の kubectl namespace を `SERVICE_ACCOUNT_NAMESPACE` として使うので、途中で namespace を切り替えないでください。
+
 ---
 ## 4. 進め方ガイド (ハイレベル手順)
 1. 01〜03: 基本オブジェクト (Pod→ReplicaSet→Deployment)
@@ -174,7 +176,7 @@ kubectl delete -f 08_Secret/keyvault-secretproviderclass.yaml --ignore-not-found
 | Probes + Failure Scenarios | OK (詳細 README) |
 | Requests/Limits | OK (07 + 各 Deployment) |
 | Secret (平文) | OK (学習用途) / 本番は非推奨 |
-| Key Vault CSI | OK (placeholder 要編集) |
+| Key Vault CSI | OK (`08_Secret/README.md` の手順で一時マニフェストへレンダリング) |
 | Azure Files CSI NFS 動的 PVC | OK (学習用 / RWX 注意) |
 | HPA (CPU+Memory) | OK |
 | Workload Identity | OK (Key Vault 検証用マニフェストで設定済み) |
@@ -183,11 +185,15 @@ kubectl delete -f 08_Secret/keyvault-secretproviderclass.yaml --ignore-not-found
 | 監視 / ログ統合 | 未記載 (Azure Monitor 手順追加余地) |
 
 ---
-## 11. 既知のプレースホルダ / 編集必須箇所
+## 11. 既知のプレースホルダ
 | ファイル | 置き換える値 |
 |---------|--------------|
 | `08_Secret/deployment-keyvault.yaml` | `<USER_ASSIGNED_CLIENT_ID>` |
 | `08_Secret/keyvault-secretproviderclass.yaml` | `<USER_ASSIGNED_CLIENT_ID>` `<YOUR_KEYVAULT_NAME>` `<YOUR_TENANT_ID>` `<YOUR_SECRET_NAME>` |
+
+`08_Secret` の手順では、これらの source YAML は直接編集せず、`$TMPDIR` 配下に環境値を埋め込んだ一時マニフェストを作成して適用します。
+
+`09_Storage/storageclass.yaml` は Azure Files NFS 用に `skuName: PremiumV2_LRS` を使います。CSI Driver が古い環境では `Premium_LRS` に変更してください。
 
 ---
 ## 12. 貢献 / 変更方針
