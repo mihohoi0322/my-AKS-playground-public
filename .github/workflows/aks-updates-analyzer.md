@@ -5,7 +5,8 @@ on:
 description: "Weekly AKS updates analyzer that checks Azure Updates RSS and GitHub AKS changelog, then creates an issue with impact analysis for this repository."
 labels: [aks, automation]
 permissions:
-  contents: read
+    contents: read
+    copilot-requests: write
 engine:
   id: copilot
   model: claude-opus-4.6
